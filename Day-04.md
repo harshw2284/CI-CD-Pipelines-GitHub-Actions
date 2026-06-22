@@ -62,7 +62,7 @@ jobs:
 
 
 
-**3.What is a GitHub-hosted runner? Who manages it ?**
+**3. What is a GitHub-hosted runner? Who manages it ?**
 
 A GitHub-hosted runner is a virtual machine provided by GitHub that automatically executes your GitHub Actions workflow jobs. It comes preconfigured with various operating systems (Ubuntu, Windows, macOS) and developer tools, eliminating the need to set up or maintain your own server infrastructure.
 
@@ -133,7 +133,7 @@ Pre-installed tools matter because they eliminate tedious setup steps, save hour
 
 ### ✅ Task 4 : Use Your Self-Hosted Runner
 
-**1. Create `.github/workflows/self-hosted.yml`
+**1. Create `.github/workflows/self-hosted.yml`**
 
 **2. Set runs-on: self-hosted**
 
