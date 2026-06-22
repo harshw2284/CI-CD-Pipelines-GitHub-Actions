@@ -1,0 +1,23 @@
+name: Code check
+
+on: 
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: Choose the env value
+                default: dev
+                required: true
+                type: choice
+                options:
+                    - prod
+                    - dev
+                    - staging
+
+                
+        
+jobs:
+    Check:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Code check
+          run: echo "checking the code"
