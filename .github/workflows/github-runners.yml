@@ -18,7 +18,7 @@ jobs:
             
             - name: Print Version
               run: |
-                Docker --version
+                docker --version
                 python --version
                 node --version
                 git --version
