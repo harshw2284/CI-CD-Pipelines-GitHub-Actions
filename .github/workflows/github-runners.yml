@@ -18,10 +18,10 @@ jobs:
             
             - name: Print Version
               run: |
-                echo Docker --version
-                echo python --version
-                echo node --version
-                echo git --version
+                Docker --version
+                python --version
+                node --version
+                git --version
 
     windows:
         runs-on: windows-latest
