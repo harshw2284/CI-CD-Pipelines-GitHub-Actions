@@ -1,4 +1,4 @@
-name: GitHub Runners
+name: GitHub Runner
 
 on:
     workflow_dispatch:
