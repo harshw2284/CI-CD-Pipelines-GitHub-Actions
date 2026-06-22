@@ -10,10 +10,10 @@ jobs:
             
             matrix:
                 os: [ windows-latest , macos-latest ]
-                pyhton-version: ["3.10","3.11","3.12"]
+                python-version: ["3.10","3.11","3.12"]
                 exclude:
                     - os: windows-latest 
-                      pyhton-version: "3.10" 
+                      python-version: "3.10" 
 
         steps:
             - name: Code Checkout
@@ -22,7 +22,11 @@ jobs:
             - name: setup python
               uses: actions/setup-python@v5
               with:
-                python-version: ${{ matrix.pyhton-version }}
+                python-version: ${{ matrix.python-version }}
             
             - name: Print Python version
               run: echo "python --version"
+
+            - name: Simulate Failure
+              if: ${{ matrix.python-version == '3.11'}}
+              run: exit 1
