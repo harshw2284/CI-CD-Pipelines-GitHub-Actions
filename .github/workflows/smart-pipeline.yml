@@ -1,8 +1,9 @@
 name: Smart Pipeline
 
 on:
-    push:
-        branches: '**'
+    workflow_dispatch:
+    #push:
+        #branches: '**'
 
 jobs:
     lint:
