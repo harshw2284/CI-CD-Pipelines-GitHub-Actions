@@ -23,10 +23,10 @@ jobs:
         steps:
             - name: Branch Type
               run: |
-                if [ "${{ github.ref_name }}" = "main"]; then
+                if [ "${{ github.ref_name }}" = "main" ]; then
                   echo "This is Main Branch"
                 else:
-                    echo ""Feature branch push detected""
+                    echo "Feature branch push detected"
                 fi
             
             - name: Print Commit Message
