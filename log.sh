@@ -1,6 +1,17 @@
 #!/bin/bash
 
-for i in {1..10}
-do 
-	echo "your numbers are: $i"
-done
+read -p "Enter Number :" NUM
+
+if [ $NUM -gt 0 ]
+then
+	echo "number is positive"
+	exit 1
+fi
+
+if [ $NUM -lt 0 ]
+then
+	echo "number is negative"
+	exit 1
+else
+	echo "number is zero"
+fi
