@@ -19,7 +19,7 @@ jobs:
             - name: Run on Failure
               if: failure()
               run: echo "Previous step failed!"
-              continue-on-error: true
+              
 
     continue-on-error:
         runs-on: ubuntu-latest
