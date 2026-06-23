@@ -1,4 +1,4 @@
-# Docker – Day 04 - Runners: GitHub-Hosted & Self-Hosted
+# CI/CD – Day 04 - Runners: GitHub-Hosted & Self-Hosted
 
 Every job needs a machine to run on. Today I will understand runners — GitHub's hosted ones and how to set up your own self-hosted runner on a real server.
 
