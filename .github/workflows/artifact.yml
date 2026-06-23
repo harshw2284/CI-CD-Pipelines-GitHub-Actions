@@ -19,6 +19,7 @@ jobs:
                 path: file.txt
 
     download-artifact:
+        needs: create-artifact
         runs-on: ubuntu-latest
         steps:
             - name: Download Artifact
