@@ -28,5 +28,5 @@ jobs:
                 name: my-artifact
 
             - name: Print Artifact
-              run: value is $my-artifact
+              run: echo "value is $file.txt"
 
