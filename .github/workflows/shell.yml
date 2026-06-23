@@ -10,7 +10,14 @@ jobs:
             - name: Code Checkout
               uses: actions/checkout@v4
 
+            - name: Install ShellCheck
+              run: sudo apt-get update && sudo apt-get install -y shellcheck
+
             - name: Run Shellcheck
               uses: ludeeus/action-shellcheck@master
+
+            - name: check script
+              run: shellcheck log.sh
+
 
 
