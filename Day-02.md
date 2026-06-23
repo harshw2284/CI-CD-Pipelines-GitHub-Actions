@@ -4,6 +4,8 @@ Today you write your first GitHub Actions pipeline and watch it run in the cloud
 
 This is the moment CI/CD stops being a concept and becomes real.
 
+---
+
 ### ✅ Task 1: Set Up
 
 **1. First I Created a new public GitHub repository called `github-actions`**
