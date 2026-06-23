@@ -39,6 +39,10 @@ jobs:
               run: echo "Secret is ${{secrets.MY_SECRET_MESSAGE}}"
 ```
 
+**Why should you never print secrets in CI logs ?**
+
+Printing secrets in CI logs—even accidentally during debugging—is dangerous because it exposes plaintext credentials to anyone with access to the pipeline. This leads to compromised cloud environments, unauthorized access to downstream services, and violation of data security compliance standards.
+
 ---
 
 ### ✅ Task 2 : Use Secrets as Environment Variables
@@ -168,51 +172,52 @@ jobs:
               run: cat file.txt
 ```
 
+**When would you use artifacts in a real pipeline ?**
+
+In a real CI/CD pipeline, you use artifacts to store the tangible, immutable outputs of a build process so they can be securely passed between pipeline stages or deployed across environments.
+
 ---
 
-### ✅ Task 5 : Putting It Together
+### ✅ Task 6 : Caching
 
-**Create `.github/workflows/smart-pipeline.yml` that:**
+**Add `actions/cache` to a workflow that installs dependencies**
 
-* Triggers on push to any branch
-* Has a lint job and a test job running in parallel
-* Has a summary job that runs after both, prints whether it's a main branch push or a feature branch push, and prints the commit message
-
+**Run it twice — observe the time difference**
 
 ```yml
-name: Smart Pipeline
+name: Python Cache Demo
 
 on:
-    push:
-        branches: '**'
+  workflow_dispatch:
 
 jobs:
-    lint:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Code Lint
-              run: echo "Linting the code .."
+  build:
+    runs-on: ubuntu-latest
 
-    test:
-        runs-on: ubuntu-latest
-        steps: 
-            - name: Test Code 
-              run: echo "Testing the code .."
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    summary:
-        runs-on: ubuntu-latest
-        needs: [lint,test]
-        steps:
-            - name: Branch Type
-              run: |
-                if [ "${{ github.ref_name }}" = "main" ]; then
-                  echo "This is Main Branch"
-                else
-                    echo "Feature branch push detected"
-                fi
-            
-            - name: Print Commit Message
-              run: echo "Commit message is ${{ github.event.head_commit.message }}"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 ```
+
+
+**What is being cached and where is it stored ?**
+
+When you use actions/cache, GitHub saves files that are expensive or time-consuming to download again, such as project dependencies, package manager caches, or build caches. For example, in a Python project, the cache might contain downloaded pip packages; in a Node.js project, it might contain npm packages. After the workflow finishes, GitHub compresses these files and stores them in GitHub's own cache storage associated with your repository and cache key. The cache is not stored on the runner machine permanently, because runners are temporary and are deleted after the job ends. In future workflow runs, GitHub checks whether a matching cache exists. If it does, GitHub downloads and restores the cached files to the specified location before the installation step runs. This makes the workflow faster because it can reuse previously downloaded files instead of fetching them again from the internet.
 
 ---
