@@ -1,4 +1,4 @@
-# Docker – Day 01 - What is CI/CD?
+# CI/CD – Day 01 - What is CI/CD?
 
 
 ### ✅ Task 1: The Problem
