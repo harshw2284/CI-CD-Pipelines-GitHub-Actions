@@ -2,6 +2,8 @@
 
 Today our pipeline starts doing real work — storing sensitive values securely, saving build outputs, and running actual tests from your previous days.
 
+---
+
 ### ✅ Task 1: GitHub Secrets
 
 **1. Go to your repo → Settings → Secrets and Variables → Actions**
