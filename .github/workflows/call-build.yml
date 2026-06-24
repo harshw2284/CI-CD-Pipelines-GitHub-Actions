@@ -1,0 +1,15 @@
+name: Caller Workflow
+
+on: 
+    push:
+        branches: [main]
+    #workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      app_name: "my-web-app"
+      environment: "production"
+    secrets:
+      docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
