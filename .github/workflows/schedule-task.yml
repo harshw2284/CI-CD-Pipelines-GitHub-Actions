@@ -1,0 +1,29 @@
+name: Schedule Workflow
+
+on:
+    workflow_dispatch:
+        
+    schedule:
+        - cron: '30 2 * * 1'
+        - cron: '0 */6 * * *'
+
+jobs:
+    trigger:
+        runs-on: ubunti-latest
+        steps:
+            - name: Schedule Triggered
+              run: echo "schedule triggered is ${{ github.event.schedule }}"
+
+            - name: Run Health Check
+              run:
+                URL="https://example.com" 
+
+                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "URL")
+
+                echo "Response HTTP Status Code is $HTTP_STATUS"
+
+                if [ "$STATUS" -ne 200 ]; then
+                  echo "Error ! Health check failed with status code $HTTP_STATUS"
+                  exit 1"
+                fi
+                  echo "Health check passed successfully!"
