@@ -1,29 +1,39 @@
-name: Schedule Workflow
+name: Scheduled Tasks
 
 on:
-    workflow_dispatch:
-        
-    schedule:
-        - cron: '30 2 * * 1'
-        - cron: '0 */6 * * *'
+
+  workflow_dispatch:
+  schedule:
+    # Triggers every Monday at 2:30 AM UTC
+    - cron: '30 2 * * 1'
+    # Triggers every 6 hours (at minute 0)
+    - cron: '0 */6 * * *'
 
 jobs:
-    trigger:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Schedule Triggered
-              run: echo "schedule triggered is ${{ github.event.schedule }}"
+  run-scheduled-tasks:
+    runs-on: ubuntu-latest
 
-            - name: Run Health Check
-              run: |
-                URL="https:example.com" 
+    steps:
+      - name: Print Triggering Schedule
+        run: |
+          echo "The workflow was triggered by the following cron schedule: ${{ github.event.schedule }}"
 
-                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "URL")
-
-                echo "Response HTTP Status Code is $HTTP_STATUS"
-
-                if [ "$STATUS" -ne 200 ]; then
-                  echo "Error ! Health check failed with status code $HTTP_STATUS"
-                  exit 1"
-                fi
-                  echo "Health check passed successfully!"
+      - name: Run Health Check
+        run: |
+          # Target URL for the health check (Replace with your actual endpoint)
+          TARGET_URL="https://example.com"
+          
+          echo "Sending health check request to $TARGET_URL..."
+          
+          # Curl the URL, silent output, write only the HTTP status code to stdout
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET_URL")
+          
+          echo "Response HTTP Status Code: $HTTP_STATUS"
+          
+          # Verify if the response code is 200 (OK)
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Error: Health check failed with status code $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "Health check passed successfully!"
