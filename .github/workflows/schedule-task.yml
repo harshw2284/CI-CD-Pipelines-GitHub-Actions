@@ -1,29 +1,36 @@
-name: Schedule Workflow
+name: Scheduled Tasks
 
 on:
-    workflow_dispatch:
-        
-    schedule:
-        - cron: '30 2 * * 1'
-        - cron: '0 */6 * * *'
+  schedule:
+    # Every Monday at 2:30 AM UTC
+    - cron: '30 2 * * 1'
+
+    # Every 6 hours
+    - cron: '0 */6 * * *'
+
+  # Optional: Allows you to run the workflow manually for testing
+  workflow_dispatch:
 
 jobs:
-    trigger:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Schedule Triggered
-              run: echo "schedule triggered is ${{ github.event.schedule }}"
+  scheduled-job:
+    runs-on: ubuntu-latest
 
-            - name: Run Health Check
-              run: |
-                TARGET_URL="https://example.com" 
+    steps:
+      - name: Print the schedule that triggered this workflow
+        run: |
+          echo "Triggered by schedule: ${{ github.event.schedule }}"
 
-                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "TARGET_URL")
+      - name: Health Check
+        run: |
+          URL="https://example.com"
 
-                echo "Response HTTP Status Code is $HTTP_STATUS"
+          STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$URL")
 
-                if [ "$STATUS" -ne 200 ]; then
-                  echo "Error ! Health check failed with status code $HTTP_STATUS"
-                  exit 1"
-                fi
-                echo "Health check passed successfully!"
+          echo "Response Code: $STATUS_CODE"
+
+          if [ "$STATUS_CODE" -eq 200 ]; then
+            echo "✅ Health check passed."
+          else
+            echo "❌ Health check failed!"
+            exit 1
+          fi
