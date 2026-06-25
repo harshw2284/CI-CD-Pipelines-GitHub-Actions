@@ -1,0 +1,14 @@
+name: Path
+
+on:
+    push:
+      paths:
+        - 'src/**'
+        - 'app/**'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print
+              run: echo "Running"

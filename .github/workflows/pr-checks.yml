@@ -1,0 +1,25 @@
+name: PR check
+
+on: 
+    pull_request: 
+        branches: [main]
+
+jobs:
+    file-size-check:
+        if: 
+        runs-on: ubunti-latest
+        steps:
+            - name: Checkout Code
+              run: actions/checkout@v4
+
+    branch-name-check:
+        runs-on: ubunti-latest
+        steps:
+            - name: Read Branch Name
+              run: echo "branch name is ${{ github.head_ref }}"
+
+    pr-body-check:
+        runs-on: ubunti-latest
+        steps:
+            - name: Reads the PR Body
+              run: echo "PR body is ${{ github.event.pull_request.body }}"
