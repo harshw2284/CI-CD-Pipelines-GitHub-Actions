@@ -15,8 +15,8 @@ jobs:
               run: echo "schedule triggered is ${{ github.event.schedule }}"
 
             - name: Run Health Check
-              run:
-                URL="https://hc-ping.com/your-unique-uuid-code" 
+              run: |
+                URL="https:example.com" 
 
                 STATUS=$(curl -s -o /dev/null -w "%{http_code}" "URL")
 
