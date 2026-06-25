@@ -16,9 +16,9 @@ jobs:
 
             - name: Run Health Check
               run: |
-                URL="https://example.com" 
+                TARGET_URL="https://example.com" 
 
-                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "URL")
+                STATUS=$(curl -s -o /dev/null -w "%{http_code}" "TARGET_URL")
 
                 echo "Response HTTP Status Code is $HTTP_STATUS"
 
