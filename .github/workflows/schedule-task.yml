@@ -16,7 +16,7 @@ jobs:
 
             - name: Run Health Check
               run:
-                URL="https://example.com" 
+                URL="https://hc-ping.com/your-unique-uuid-code" 
 
                 STATUS=$(curl -s -o /dev/null -w "%{http_code}" "URL")
 
