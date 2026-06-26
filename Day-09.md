@@ -4,52 +4,273 @@ I've used push and basic pull_request triggers. But GitHub Actions supports doze
 
 ---
 
-### ✅ Task 1 : Prepare
+### ✅ Task 1 : Pull Request Event Types
 
-**1. Use the app you Dockerized on Docker**
+**Create `.github/workflows/pr-lifecycle.yml` that triggers on `pull_request` with specific activity types:**
 
-**2. Add the Dockerfile to your `github-actions-practice` repo (or create a minimal one)**
+**1. Trigger on: `opened`, `synchronize`, `reopened`, `closed`**
 
-**3. Make sure `DOCKER_USERNAME` and `DOCKER_TOKEN` secrets are set**
+```yml
+name: PR request 
+
+on:
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - closed
+```
+
+**2. Add steps that:**
+* Print which event type fired: `${{ github.event.action }}`
+* Print the PR title: `${{ github.event.pull_request.title }}`
+* Print the PR author: `${{ github.event.pull_request.user.login }}`
+* Print the source branch and target branch
+
+```yml
+name: PR request 
+
+on:
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - closed
+        
+jobs:
+    pr-lifecycle:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print which event type fired 
+              run: "Event type fired is ${{ github.event.action }}"
+
+            - name: Print PR Title
+              run: echo "PR title is ${{ github.event.pull_request.title }}"
+
+            - name: Print PR author
+              run: echo "PR author is ${{ github.event.pull_request.user.login }}"
+
+            - name: Print source and target branches
+              run: |
+                echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
+                echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
+```
+
+**3. Add a conditional step that only runs when the PR is merged (closed + merged = true)**
+
+```yml
+name: PR request 
+
+on:
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - closed
+        
+jobs:
+    pr-lifecycle:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print which event type fired 
+              run: "Event type fired is ${{ github.event.action }}"
+
+            - name: Print PR Title
+              run: echo "PR title is ${{ github.event.pull_request.title }}"
+
+            - name: Print PR author
+              run: echo "PR author is ${{ github.event.pull_request.user.login }}"
+
+            - name: Print source and target branches
+              run: |
+                echo "Source Branch: ${{ github.event.pull_request.head.ref }}"
+                echo "Target Branch: ${{ github.event.pull_request.base.ref }}"
+
+            - name: Run only when PR is merged
+              if: github.event.action == 'closed' && github.event.pull_request.merged == true
+              run: |
+                echo "Pull Request was merged successfully!"
+                echo "Merged into: ${{ github.event.pull_request.base.ref }}"
+```
+
+**Test it:** create a PR, push an update to it, then merge it. Watch the workflow fire each time with a different event type.
 
 ---
 
-### ✅ Task 2 : Build the Docker Image in CI
+### ✅ Task 2 : PR Validation Workflow
 
-**Create `.github/workflows/docker-publish.yml` that:**
+**Create `.github/workflows/pr-checks.yml` — a real-world PR gate:**
 
-* Triggers on push to `main`
-* Checks out the code
-* Builds the Docker image and tags it
+**1. Trigger on `pull_request` to `main`**
 
 ```yml
-name : Docker Publish
+name: PR check
 
-on:
-    push:
-      branches: [main]
+on: 
+    pull_request: 
+        branches: [main]
+```
+
+**2. Add a job `file-size-check` that:**
+
+* Checks out the code
+* Fails if any file in the PR is larger than 1 MB
+
+```yml
+name: PR check
+
+on: 
+    pull_request: 
+        branches: [main]
 
 jobs:
-    build:
+    file-size-check:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
-              uses: actions/checkout@v4
+              run: actions/checkout@v4
 
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                username: ${{ vars.DOCKERHUB_USERNAME }}
-                password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - name: Check for files larger than 1 MB
+              run: |
+                git fetch origin ${{ github.event.pull_request.base.ref }}
 
-            - name: Build and Push to Docker Hub
-              uses: docker/build-push-action@v6
-              with:
-                context: .
-                push: true
-                tags: |
-                  ${{vars.DOCKERHUB_USERNAME}}/github-actions-app:latest
-                  ${{vars.DOCKERHUB_USERNAME}}/github-actions-app:${{github.sha}}
+                FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+                for file in $FILES; do
+                  if [ -f "$file" ]; then
+                    SIZE=$(stat -c%s "$file")
+
+                    if [ "$SIZE" -gt 1048576 ]; then
+                      echo "$file is larger than 1 MB."
+                      exit 1
+                    fi
+                  fi
+                done
+                echo "All files are within the size limit."
+```
+
+**3. Add a job `branch-name-check` that:**
+  
+* Reads the branch name from `${{ github.head_ref }}`
+* Fails if it doesn't follow the pattern `feature/*`, `fix/*`, or `docs/*`
+
+```yml
+name: PR check
+
+on: 
+    pull_request: 
+        branches: [main]
+
+jobs:
+    file-size-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              run: actions/checkout@v4
+
+            - name: Check for files larger than 1 MB
+              run: |
+                git fetch origin ${{ github.event.pull_request.base.ref }}
+
+                FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+                for file in $FILES; do
+                  if [ -f "$file" ]; then
+                    SIZE=$(stat -c%s "$file")
+
+                    if [ "$SIZE" -gt 1048576 ]; then
+                      echo "$file is larger than 1 MB."
+                      exit 1
+                    fi
+                  fi
+                done
+                echo "All files are within the size limit."
+
+
+    branch-name-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate Branch Name
+              run: |
+                BRANCH_NAME="${{ github.head_ref }}"
+                echo "Evaluating source branch: $BRANCH_NAME"
+          
+                if [[ ! "$BRANCH_NAME" =~ ^(feature|fix|docs)/.+ ]]; then
+                    echo "::error::Branch name '$BRANCH_NAME' is invalid. It must follow patterns: feature/*, fix/*, or docs/*"
+                    exit 1
+                fi
+                echo "Branch name is valid!"
+```
+
+**4. Add a job `pr-body-check` that:**
+* Reads the PR body: `${{ github.event.pull_request.body }}`
+* Warns (but doesn't fail) if the PR description is empty
+
+```yml
+name: PR check
+
+on: 
+    pull_request: 
+        branches: [main]
+
+jobs:
+    file-size-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              run: actions/checkout@v4
+
+            - name: Check for files larger than 1 MB
+              run: |
+                git fetch origin ${{ github.event.pull_request.base.ref }}
+
+                FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+                for file in $FILES; do
+                  if [ -f "$file" ]; then
+                    SIZE=$(stat -c%s "$file")
+
+                    if [ "$SIZE" -gt 1048576 ]; then
+                      echo "$file is larger than 1 MB."
+                      exit 1
+                    fi
+                  fi
+                done
+                echo "All files are within the size limit."
+
+
+    branch-name-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate Branch Name
+              run: |
+                BRANCH_NAME="${{ github.head_ref }}"
+                echo "Evaluating source branch: $BRANCH_NAME"
+          
+                if [[ ! "$BRANCH_NAME" =~ ^(feature|fix|docs)/.+ ]]; then
+                    echo "::error::Branch name '$BRANCH_NAME' is invalid. It must follow patterns: feature/*, fix/*, or docs/*"
+                    exit 1
+                fi
+                echo "Branch name is valid!"
+
+
+    pr-body-check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Inspect PR Body
+              env:
+                PR_BODY: ${{ github.event.pull_request.body }}
+              run: |
+                CLEANED_BODY=$(echo "$PR_BODY" | tr -d '[:space:]')
+          
+                if [ -z "$CLEANED_BODY" ] || [ "$PR_BODY" = "null" ]; then
+                  echo "::warning::The PR description is empty! Please consider adding a summary of your changes."
+                else
+                  echo "PR description is present and populated."
+                fi
 ```
 
 ---
