@@ -6,20 +6,56 @@ on:
 
 jobs:
     file-size-check:
-        if: 
-        runs-on: ubunti-latest
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
               run: actions/checkout@v4
 
+            - name: Check for files larger than 1 MB
+              run: |
+                git fetch origin ${{ github.event.pull_request.base.ref }}
+
+                FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+                for file in $FILES; do
+                  if [ -f "$file" ]; then
+                    SIZE=$(stat -c%s "$file")
+
+                    if [ "$SIZE" -gt 1048576 ]; then
+                      echo "$file is larger than 1 MB."
+                      exit 1
+                    fi
+                  fi
+                done
+                echo "All files are within the size limit."
+
+
     branch-name-check:
-        runs-on: ubunti-latest
+        runs-on: ubuntu-latest
         steps:
-            - name: Read Branch Name
-              run: echo "branch name is ${{ github.head_ref }}"
+            - name: Validate Branch Name
+              run: |
+                BRANCH_NAME="${{ github.head_ref }}"
+                echo "Evaluating source branch: $BRANCH_NAME"
+          
+                if [[ ! "$BRANCH_NAME" =~ ^(feature|fix|docs)/.+ ]]; then
+                    echo "::error::Branch name '$BRANCH_NAME' is invalid. It must follow patterns: feature/*, fix/*, or docs/*"
+                    exit 1
+                fi
+                echo "Branch name is valid!"
+
 
     pr-body-check:
-        runs-on: ubunti-latest
+        runs-on: ubuntu-latest
         steps:
-            - name: Reads the PR Body
-              run: echo "PR body is ${{ github.event.pull_request.body }}"
+            - name: Inspect PR Body
+              env:
+                PR_BODY: ${{ github.event.pull_request.body }}
+              run: |
+                CLEANED_BODY=$(echo "$PR_BODY" | tr -d '[:space:]')
+          
+                if [ -z "$CLEANED_BODY" ] || [ "$PR_BODY" = "null" ]; then
+                  echo "::warning::The PR description is empty! Please consider adding a summary of your changes."
+                else
+                  echo "PR description is present and populated."
+                fi
