@@ -58,9 +58,9 @@ jobs:
 
 **Create `.github/workflows/scheduled-tasks.yml:`**
 
-**1. Add a schedule trigger with cron: '30 2 * * 1' (every Monday at 2:30 AM UTC)**
+**1. Add a schedule trigger with cron: `'30 2 * * 1'` (every Monday at 2:30 AM UTC)**
 
-**2. Add another cron entry: '0 */6 * * *' (every 6 hours)**
+**2. Add another cron entry: `'0 */6 * * *'` (every 6 hours)**
 
 ```yml
 name: Schedule Workflow
@@ -73,7 +73,7 @@ on:
         - cron: '0 */6 * * *'
 ```
 
-**3. In the job, print which schedule triggered using ${{ github.event.schedule }}**
+**3. In the job, print which schedule triggered using `${{ github.event.schedule }}`**
 
 ```yml
 name: Schedule Workflow
@@ -215,7 +215,7 @@ jobs:
 
 YES !
 
-**When would you use paths vs paths-ignore ?**
+**When would you use `paths` vs `paths-ignore` ?**
 
 In GitHub Actions, you use paths when you want a workflow to run only when specific files change, and paths-ignore when you want it to run for all changes except when specific files are modified.You cannot use both paths and paths-ignore for the same event in a single workflow. 
 
