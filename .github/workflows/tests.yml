@@ -8,7 +8,7 @@ jobs:
     test:
         runs-on: ubuntu-latest
         steps:
-            - name: Run Test
+            - name: Run Tests
               run: |
                 echo "Running the Test ..."
                 echo "Test Succesfull"
